@@ -1,19 +1,31 @@
+let gantSens = 1.5;
+let startScene = true;
+
 function display() {
     /* Creating a new PIXI graphics object. */
-    const graphics = new PIXI.Graphics();
+    const background = new PIXI.Graphics();
+    const cta = new PIXI.Graphics();
+    const veil = new PIXI.Graphics();
+
+    const ctaHeight = 75;
 
     /* Resizing the canvas to the size of the window. */
     app.renderer.resize(window.innerWidth, window.innerHeight);
 
     /*Background: Drawing a rectangle with the color 0xDE3249. */
-    graphics.beginFill(0X1099bb);
-    graphics.drawRect(0, 0, window.innerWidth, window.innerHeight);
-    graphics.endFill();
+    background.beginFill(0x1099BB);
+    background.drawRect(0, 0, window.innerWidth, window.innerHeight);
+    background.endFill();
+
+    /*Veil: Drawing a rectangle with the color 0xDE3249. */
+    veil.beginFill(0x00000, 0.55);
+    veil.drawRect(0, 0, window.innerWidth, window.innerHeight);
+    veil.endFill();
 
     /*CTA Panel: Drawing a rectangle with the color 0xDE3249. */
-    graphics.beginFill(0xDE3249);
-    graphics.drawRect(0, 0, window.innerWidth, 75);
-    graphics.endFill();
+    cta.beginFill(0xDE3249);
+    cta.drawRect(0, 0, window.innerWidth, ctaHeight);
+    cta.endFill();
 
     /* Creating a new style for the text. */
     const styleTutoriel = new PIXI.TextStyle({
@@ -44,25 +56,65 @@ function display() {
     const leftArrow = new PIXI.Text('<', styleArrow);
     const rightArrow = new PIXI.Text('>', styleArrow);
 
-    const startTextTutoriel = (window.innerWidth / 2) - (textTutoriel.width / 2)
+    const startTextTutoriel = (window.innerWidth / 2) - (textTutoriel.width / 2);
+    const arrowHeight = 150;
 
     /* Centering the text. */
     textTutoriel.x = startTextTutoriel;
-    textTutoriel.y = 100;
+    textTutoriel.y = ctaHeight + 25;
     
     /* Adjusting text with "textTutoriel"'s width */
     leftArrow.x = startTextTutoriel;
-    leftArrow.y = window.innerHeight - 100;
+    leftArrow.y = window.innerHeight - arrowHeight;
     rightArrow.x = (window.innerWidth / 2) + ((textTutoriel.width / 2) - (rightArrow.width));
-    rightArrow.y = window.innerHeight - 100;
+    rightArrow.y = window.innerHeight - arrowHeight;
 
-    // const hand = PIXI.Sprite.from('assets/hand.png');
+    const hand = PIXI.Sprite.from('assets/gant.png');
+    hand.scale.set(0.075);
+    hand.angle = -25;
+
+    hand.x = startTextTutoriel;
+    hand.y = rightArrow.y + 30;
+
+    /* It's moving the hand. */
+    app.ticker.add(() => {
+        /* It's checking if the hand is at the right of the right arrow. If it is, it's changing the direction
+        of the hand. */
+        if (hand.x > (rightArrow.x - rightArrow.width)) {
+            gantSens *= -1;
+        }
+        
+        /* It's checking if the hand is at the left of the left arrow. If it is, it's changing the direction of
+        the hand. */
+        if (hand.x < (leftArrow.x - leftArrow.width + 20)) {
+            gantSens *= -1;
+        }
+
+        /* It's moving the hand. */
+        hand.x += gantSens;
+    });
 
     /* Adding pixi.js elements to the stage. */
-    app.stage.addChild(graphics);
-    app.stage.addChild(textTutoriel);
-    app.stage.addChild(leftArrow);
-    app.stage.addChild(rightArrow);
+    app.stage.addChild(background);
+
+    if (startScene) {
+        app.stage.addChild(veil);
+        app.stage.addChild(textTutoriel);
+        app.stage.addChild(leftArrow);
+        app.stage.addChild(rightArrow);
+        app.stage.addChild(hand);
+    }
+
+    app.stage.addChild(cta);
+
+    document.querySelector('canvas').addEventListener('click', () => {
+        app.stage.removeChild(textTutoriel);
+        app.stage.removeChild(leftArrow);
+        app.stage.removeChild(rightArrow);
+        app.stage.removeChild(hand);
+        app.stage.removeChild(veil);
+        startScene = false;
+    });
 }
 
 /* Creating a new PIXI application. */
@@ -74,7 +126,7 @@ const app = new PIXI.Application({
     transparent: false,
 });
 
-
+/* CHECK 'RESPONSIVE' DEF WITH VOODOO' */
 window.addEventListener("resize", () => {
     display()
 })
