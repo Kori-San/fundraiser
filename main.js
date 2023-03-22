@@ -1,6 +1,7 @@
 let startScene = true;
 let endScene = false;
 let isDown = false;
+let tick = 0;
 
 function display() {
     /*
@@ -34,6 +35,9 @@ function display() {
     // Plane Parameters
     const planeScale = 0.1;
     const planeStep = 125;
+
+    // MissilObject
+    let missilsObject = [];
 
     /*
     * Background creation:
@@ -138,6 +142,8 @@ function display() {
     plane.x = (app.screen.width / 2) - (plane.width / 2);
     plane.y = ctaHeight - planeStep;
 
+    console.log(plane.x, plane.y);  
+
     /*
     var loader = new PIXI.Assets([ 
         "assets/plane.png"
@@ -179,11 +185,31 @@ function display() {
             if (isDown) {
                 console.log("Bonjour");
             }
+
+            if (tick % 50 == 0) {
+                const missil = PIXI.Sprite.from('/assets/missil.png');
+                missil.id = tick / 50;
+                missil.scale.set(0.075);
+                missil.anchor.set(1.493);
+                missil.x = (plane.x + (plane.width / 2));
+                missil.y = (plane.y);
+                missilsObject.push(missil);
+                app.stage.addChild(missil);
+            }
+            missilsObject.forEach(function(missil) {
+                missil.y -= 3;
+                if (missil.y < 300) {
+                    console.log('go');
+                    app.stage.removeChild(missil)
+                }
+            });
         }
 
         if (endScene) {
             // TODO
         }
+
+        tick += 1;
     });
 
     /*
