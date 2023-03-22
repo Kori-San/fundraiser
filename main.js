@@ -1,6 +1,10 @@
+/* All the scenes booleans */
 let startScene = true;
 let endScene = false;
 let isDown = false;
+
+/* This var is used to stock the position of the player's mouse / touch */
+let userX = 0;
 
 function display() {
     /*
@@ -34,6 +38,12 @@ function display() {
     // Plane Parameters
     const planeScale = 0.1;
     const planeStep = 125;
+    const planeSpeed = 5;
+
+    // Download logo Parameters
+    const downloadLogoScale = 0.35;
+    const downloadLogoMaxAngle = 15;
+    let downloadLogoAngle = 0.5;
 
     /*
     * Background creation:
@@ -42,9 +52,12 @@ function display() {
     */
     const background = new PIXI.TilingSprite(
         PIXI.Texture.from('/assets/background.png'),
-        app.screen.width,
-        app.screen.height,
+        1920, // TODO
+        982, // TODO
     );
+
+    /* It's centering the background to the middle of the screen. */
+    background.x = (app.screen.width / 2) - (background.width / 2);
 
     /* 
     * Veil creation:
@@ -85,7 +98,7 @@ function display() {
     * Center the text horizontally and give textTutorial a height of 3/4 of the screen size
     */
     textTutorial.x = (app.screen.width / 2) - (textTutorial.width / 2);
-    textTutorial.y = (app.screen.height * 3) / 5;
+    textTutorial.y = app.screen.height / 2;
 
     /*
     * Arrows creation:
@@ -130,7 +143,14 @@ function display() {
     glove.x = (app.screen.width / 2) - (glove.width / 2);
     glove.y = arrowHeight + gloveHeightStep;
 
-    /* Creating plane */
+    /*
+    * Plane creation:
+    * Create a Plane sprite and scaling it so it can fit the screen.
+    * The Plane's center is also anchored into the middle of it's own texture.
+    * 
+    * The Plane is centered to the middle of the screen and he share 
+    * the height of the CTA with a small step to the bottom of the screen.
+    */
     const plane = PIXI.Sprite.from('assets/plane.png');
     plane.anchor.set(0.5);
     plane.scale.set(planeScale);
@@ -139,16 +159,19 @@ function display() {
     plane.y = ctaHeight - planeStep;
 
     /*
-    var loader = new PIXI.Assets([ 
-        "assets/plane.png"
-    ]);
-    loader.onComplete = setup;
-    loader.load();  
-    function setup() {   
-        //Create the sprite from the loaded image texture
-        var plane = new PIXI.Sprite(PIXI.TextureCache["assets/plane.png"]);
-    }
+    * Download Logo creation:
+    * Create a Dowload Logo sprite and scaling it so it can fit the screen.
+    * The Download Logo's center is also anchored into the middle of it's own texture.
+    * 
+    * The Download Logo is centered to the middle of the screen and he share 
+    * the height of 1/3 the size of the screen.
     */
+    const downloadLogo = PIXI.Sprite.from('assets/downloadLogo.png');
+    downloadLogo.anchor.set(0.5);
+    downloadLogo.scale.set(downloadLogoScale);
+    
+    downloadLogo.x = (app.screen.width / 2) - (downloadLogo.width / 2);
+    downloadLogo.y = app.screen.height / 3;
 
     /*
     * App Ticker:
@@ -177,12 +200,24 @@ function display() {
         if (!startScene && !endScene) {
             /* It's checking if the user is touching the screen. */
             if (isDown) {
-                console.log("Bonjour");
+                if (plane.x > userX) {
+                    plane.x -= planeSpeed;
+                }
+                else if (plane.x < userX) {
+                    plane.x += planeSpeed;
+                }
             }
         }
 
+        /* When we're in the end scene */
         if (endScene) {
-            // TODO
+            /* It's checking if the downloadLogo is at the max angle. If it is, it's inverting the angle. */
+            if (downloadLogo.angle > downloadLogoMaxAngle || downloadLogo.angle < - downloadLogoMaxAngle) {
+                downloadLogoAngle *= -1;
+            }
+
+            /* It's making the downloadLogo rotate. */
+            downloadLogo.angle += downloadLogoAngle;    
         }
     });
 
@@ -190,11 +225,12 @@ function display() {
     * EventListener handling:
     * Make 'mousedown | mouseup' and 'touchstart | touchend' trigger events.
     */
-
     /* It's adding an event listener which handle the game scene start */
     ['mousedown', 'touchstart'].forEach(event =>
         document.querySelector('canvas').addEventListener(event, () => {
             if (startScene) {
+                /* Init userX to the listener's x position */
+
                 /* It's removing the elements of the start scene. */
                 app.stage.removeChild(glove);
                 app.stage.removeChild(rightArrow);
@@ -208,8 +244,16 @@ function display() {
                 setTimeout(() => {
                     app.stage.removeChild(callToAction);
                     app.stage.addChild(veil);
+                    app.stage.addChild(downloadLogo);
                     endScene = true;
                 }, (10 * 1000));
+
+                /* It's setting the userX variable to the x position of the mouse or the touch. */
+                onmousedown = (event) => userX = event.x;
+                onmousemove = (event) => userX = event.x;
+
+                ontouchstart = (event) => userX = event.x;
+                ontouchmove = (event) => userX = event.x;
             }
 
             /* It's setting the isDown variable to true */
@@ -217,7 +261,7 @@ function display() {
         }));
 
     /* It's adding an event listener to the canvas */
-    ['mousedup', 'touchend'].forEach(event =>
+    ['mouseup', 'touchend'].forEach(event =>
         /* It's setting the isDown variable to false. */
         document.querySelector('canvas').addEventListener(event, () => {
             isDown = false;
@@ -230,24 +274,33 @@ function display() {
     * The first object to be added to the scene will be on the back.
     * The last object to be added will be on front of the screen.
     */
+    /* It's adding the background to the stage. */
     app.stage.addChild(background);
 
-    /* It's adding the elements of the start scene to the stage. */
+    /* It's adding the back elements of the start scene to the stage. */
     if (startScene) {
         app.stage.addChild(leftArrow);
         app.stage.addChild(rightArrow);
-        app.stage.addChild(plane);
+    }
+
+    /* It's adding the plane to the stage. */
+    app.stage.addChild(plane);
+
+    /* It's adding the front elements of the start scene to the stage. */
+    if (startScene) {
         app.stage.addChild(textTutorial);
         app.stage.addChild(glove);
     }
-    
+
     /* CTA is always last to appear */
     app.stage.addChild(callToAction);
 }
 
-//// Main Scope
-
-/* Creating a new PIXI application. */
+/*
+* Main Scope:
+* Create a PIXI application, make the app re-display everything when the window is resized.
+* Create Canvas and make it absolute and display the playable ads.
+*/
 const app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -255,7 +308,7 @@ const app = new PIXI.Application({
     transparent: true,
 });
 
-/* Optionnal */
+/* Optionnal: Make the app responsive */
 window.addEventListener("resize", () => {
     display()
 })
@@ -266,4 +319,5 @@ app.renderer.view.style.position = 'absolute';
 /* Adding the canvas to the body of the HTML document. */
 document.body.appendChild(app.view);
 
+/* It's calling the display function. */
 display();
