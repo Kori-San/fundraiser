@@ -2,6 +2,7 @@
 let startScene = true;
 let endScene = false;
 let isDown = false;
+let tick = 0;
 
 /* This var is used to stock the position of the player's mouse / touch */
 let userX = 0;
@@ -44,6 +45,9 @@ function display() {
     const downloadLogoScale = 0.35;
     const downloadLogoMaxAngle = 15;
     let downloadLogoAngle = 0.5;
+
+    // MissilObject
+    let missilsObject = [];
 
     /*
     * Background creation:
@@ -158,6 +162,8 @@ function display() {
     plane.x = (app.screen.width / 2) - (plane.width / 2);
     plane.y = ctaHeight - planeStep;
 
+    console.log(plane.x, plane.y);  
+
     /*
     * Download Logo creation:
     * Create a Dowload Logo sprite and scaling it so it can fit the screen.
@@ -207,6 +213,24 @@ function display() {
                     plane.x += planeSpeed;
                 }
             }
+
+            if (tick % 50 == 0) {
+                const missil = PIXI.Sprite.from('/assets/missil.png');
+                missil.id = tick / 50;
+                missil.scale.set(0.075);
+                missil.anchor.set(1.493);
+                missil.x = (plane.x + (plane.width / 2));
+                missil.y = (plane.y);
+                missilsObject.push(missil);
+                app.stage.addChild(missil);
+            }
+            missilsObject.forEach(function(missil) {
+                missil.y -= 3;
+                if (missil.y < 0) {
+                    console.log('go');
+                    app.stage.removeChild(missil)
+                }
+            });
         }
 
         /* When we're in the end scene */
@@ -219,6 +243,8 @@ function display() {
             /* It's making the downloadLogo rotate. */
             downloadLogo.angle += downloadLogoAngle;    
         }
+
+        tick += 1;
     });
 
     /*
