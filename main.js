@@ -198,7 +198,7 @@ function display() {
             }
             missilsObject.forEach(function(missil) {
                 missil.y -= 3;
-                if (missil.y < 300) {
+                if (missil.y < 0) {
                     console.log('go');
                     app.stage.removeChild(missil)
                 }
