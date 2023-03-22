@@ -31,6 +31,10 @@ function display() {
     const gloveHeightStep = 30;
     let gloveSpeed = 1.5;
 
+    // Plane Parameters
+    const planeScale = 0.1;
+    const planeStep = 125;
+
     /*
     * Background creation:
     * Create a tiling sprite using a background texture and the screen's width and height.
@@ -125,6 +129,26 @@ function display() {
     glove.x = (app.screen.width / 2) - (glove.width / 2);
     glove.y = arrowHeight + gloveHeightStep;
 
+    /* Creating plane */
+    const plane = PIXI.Sprite.from('assets/plane.png');
+    plane.anchor.set(0.5);
+    plane.scale.set(planeScale);
+
+    plane.x = (app.screen.width / 2) - (plane.width / 2);
+    plane.y = ctaHeight - planeStep;
+
+    /*
+    var loader = new PIXI.Assets([ 
+        "assets/plane.png"
+    ]);
+    loader.onComplete = setup;
+    loader.load();  
+    function setup() {   
+        //Create the sprite from the loaded image texture
+        var plane = new PIXI.Sprite(PIXI.TextureCache["assets/plane.png"]);
+    }
+    */
+
     /*
     * App Ticker:
     * The ticker manages all the events that occurs every tick (~ frame).
@@ -210,12 +234,13 @@ function display() {
 
     /* It's adding the elements of the start scene to the stage. */
     if (startScene) {
-        app.stage.addChild(textTutorial);
         app.stage.addChild(leftArrow);
         app.stage.addChild(rightArrow);
+        app.stage.addChild(plane);
+        app.stage.addChild(textTutorial);
         app.stage.addChild(glove);
     }
-
+    
     /* CTA is always last to appear */
     app.stage.addChild(callToAction);
 }
