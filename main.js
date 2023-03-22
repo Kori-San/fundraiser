@@ -64,6 +64,19 @@ function display() {
     const startTextTutoriel = (window.innerWidth / 2) - (textTutoriel.width / 2);
     const arrowHeight = 150;
 
+
+    /*var loader = new PIXI.Assets([ 
+        "assets/plane.png"
+    ]);
+    loader.onComplete = setup;
+    loader.load();  
+    function setup() {   
+        //Create the sprite from the loaded image texture
+        var plane = new PIXI.Sprite(PIXI.TextureCache["assets/plane.png"]);
+    }
+*/
+    
+    
     /* Centering the text. */
     textTutoriel.x = startTextTutoriel;
     textTutoriel.y = ctaHeight + 25;
@@ -74,6 +87,13 @@ function display() {
     rightArrow.x = (window.innerWidth / 2) + ((textTutoriel.width / 2) - (rightArrow.width));
     rightArrow.y = window.innerHeight - arrowHeight;
 
+    /* Creating plane */
+    const plane = PIXI.Sprite.from('assets/plane.png');
+    plane.x = (window.innerWidth / 2) - 90;
+    plane.y = (window.innerHeight - arrowHeight) - 50;
+    plane.scale.set(0.13);
+
+    /* Creating gant */
     const hand = PIXI.Sprite.from('assets/gant.png');
     hand.scale.set(0.075);
     hand.angle = -25;
@@ -107,6 +127,7 @@ function display() {
 
     /* Adding pixi.js elements to the stage. */
     app.stage.addChild(tilingSprite);
+    app.stage.addChild(plane);
 
     if (startScene) {
         app.stage.addChild(veil);
