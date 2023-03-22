@@ -139,14 +139,6 @@ document.body.appendChild(app.view);
 
 display();
 
-/*
-let tiling = new PIXI.TilingSprite("./assets/background.png", 800, 600);
-tiling.position.set(0, 0);
-tiling.anchor.set(0);
-app.stage.addChild(tiling);
-*/
-
-
 
 function changeScreen() {
     // create a texture from an image path
