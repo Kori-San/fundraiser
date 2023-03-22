@@ -3,7 +3,7 @@ let startScene = true;
 
 function display() {
     /* Creating a new PIXI graphics object. */
-    const background = new PIXI.Graphics();
+    // const background = new PIXI.Graphics();
     const cta = new PIXI.Graphics();
     const veil = new PIXI.Graphics();
 
@@ -12,17 +12,22 @@ function display() {
     /* Resizing the canvas to the size of the window. */
     app.renderer.resize(window.innerWidth, window.innerHeight);
 
-    /*Background: Drawing a rectangle with the color 0xDE3249. */
-    background.beginFill(0x1099BB);
-    background.drawRect(0, 0, window.innerWidth, window.innerHeight);
-    background.endFill();
+    // create a texture from an image path
+    const texture = PIXI.Texture.from('/assets/background.png');
 
-    /*Veil: Drawing a rectangle with the color 0xDE3249. */
+    /* create a tiling sprite requires a texture, a width and a height in WebGL the image size should preferably be a power of two */
+    const tilingSprite = new PIXI.TilingSprite(
+        texture,
+        app.screen.width,
+        app.screen.height,
+    );
+
+    /* Veil: Drawing a rectangle with the color 0xDE3249. */
     veil.beginFill(0x00000, 0.55);
     veil.drawRect(0, 0, window.innerWidth, window.innerHeight);
     veil.endFill();
 
-    /*CTA Panel: Drawing a rectangle with the color 0xDE3249. */
+    /* CTA Panel: Drawing a rectangle with the color 0xDE3249. */
     cta.beginFill(0xDE3249);
     cta.drawRect(0, 0, window.innerWidth, ctaHeight);
     cta.endFill();
@@ -37,7 +42,7 @@ function display() {
         strokeThickness: 5,
         textBaseline: 'ideographic',
     });
-    
+
     /* Creating a new style for the text. */
     const styleArrow = new PIXI.TextStyle({
         fontFamily: 'Arial',
@@ -62,7 +67,7 @@ function display() {
     /* Centering the text. */
     textTutoriel.x = startTextTutoriel;
     textTutoriel.y = ctaHeight + 25;
-    
+
     /* Adjusting text with "textTutoriel"'s width */
     leftArrow.x = startTextTutoriel;
     leftArrow.y = window.innerHeight - arrowHeight;
@@ -83,7 +88,7 @@ function display() {
         if (hand.x > (rightArrow.x - rightArrow.width)) {
             gantSens *= -1;
         }
-        
+
         /* It's checking if the hand is at the left of the left arrow. If it is, it's changing the direction of
         the hand. */
         if (hand.x < (leftArrow.x - leftArrow.width + 20)) {
@@ -94,8 +99,14 @@ function display() {
         hand.x += gantSens;
     });
 
+    app.ticker.add(() => {
+        if (!startScene) {
+            tilingSprite.tilePosition.y -= 1;
+        }
+    });
+
     /* Adding pixi.js elements to the stage. */
-    app.stage.addChild(background);
+    app.stage.addChild(tilingSprite);
 
     if (startScene) {
         app.stage.addChild(veil);
@@ -138,35 +149,3 @@ app.renderer.view.style.position = 'absolute';
 document.body.appendChild(app.view);
 
 display();
-
-/*
-let tiling = new PIXI.TilingSprite("./assets/background.png", 800, 600);
-tiling.position.set(0, 0);
-tiling.anchor.set(0);
-app.stage.addChild(tiling);
-*/
-
-
-
-function changeScreen() {
-    // create a texture from an image path
-    const texture = PIXI.Texture.from('/assets/background.png');
-
-    /* create a tiling sprite ...
-    * requires a texture, a width and a height
-    * in WebGL the image size should preferably be a power of two
-    */
-    const tilingSprite = new PIXI.TilingSprite(
-        texture,
-        app.screen.width,
-        app.screen.height,
-    );
-    app.stage.addChild(tilingSprite);
-
-    app.ticker.add(() => {
-
-        tilingSprite.tilePosition.y -= 1;
-    });
-}
-
-document.querySelector('canvas').addEventListener('click', changeScreen);
