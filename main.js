@@ -5,12 +5,12 @@ function display() {
     /* Resizing the canvas to the size of the window. */
     app.renderer.resize(window.innerWidth, window.innerHeight);
 
-    /*Background: Drawing a rectangle with the color 0xDE3249. */
+    /*Background: Drawing a rectangle with the color 0X1099bb. blue */
     graphics.beginFill(0X1099bb);
     graphics.drawRect(0, 0, window.innerWidth, window.innerHeight);
     graphics.endFill();
 
-    /*CTA Panel: Drawing a rectangle with the color 0xDE3249. */
+    /*CTA Panel: Drawing a rectangle with the color 0xDE3249. red */
     graphics.beginFill(0xDE3249);
     graphics.drawRect(0, 0, window.innerWidth, 75);
     graphics.endFill();
@@ -85,4 +85,36 @@ app.renderer.view.style.position = 'absolute';
 /* Adding the canvas to the body of the HTML document. */
 document.body.appendChild(app.view);
 
-display()
+display();
+
+/*
+let tiling = new PIXI.TilingSprite("./assets/background.png", 800, 600);
+tiling.position.set(0, 0);
+tiling.anchor.set(0);
+app.stage.addChild(tiling);
+*/
+
+
+
+function changeScreen() {
+    // create a texture from an image path
+    const texture = PIXI.Texture.from('/assets/background.png');
+
+    /* create a tiling sprite ...
+    * requires a texture, a width and a height
+    * in WebGL the image size should preferably be a power of two
+    */
+    const tilingSprite = new PIXI.TilingSprite(
+        texture,
+        app.screen.width,
+        app.screen.height,
+    );
+    app.stage.addChild(tilingSprite);
+
+    app.ticker.add(() => {
+
+        tilingSprite.tilePosition.y -= 1;
+    });
+}
+
+document.querySelector('canvas').addEventListener('click', changeScreen);
