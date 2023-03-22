@@ -126,6 +126,7 @@ function display() {
     glove.scale.set(gloveScale);
     glove.angle = gloveAngle;
 
+
     glove.x = (app.screen.width / 2) - (glove.width / 2);
     glove.y = arrowHeight + gloveHeightStep;
 
@@ -214,7 +215,6 @@ function display() {
             /* It's setting the isDown variable to true */
             isDown = true;
         }));
-
 
     /* It's adding an event listener to the canvas */
     ['mousedup', 'touchend'].forEach(event =>
