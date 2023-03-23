@@ -88,7 +88,7 @@ function display() {
     const posterInitSpeed = 1.5;
     let posterSpeed = posterInitSpeed;
 
-    const posterInitHP = 4;
+    const posterInitHP = 2;
     let posterHP = posterInitHP;
 
     /*
@@ -128,7 +128,7 @@ function display() {
 
     callToAction.x = 0;
     callToAction.y = ctaHeight;
-    callToAction.scale.set(0.1);
+    callToAction.scale.set(0.7);
     /*
     * textTutorial creation:
     * Creating a new text object with the text "Swipe to move !".
@@ -396,7 +396,7 @@ function display() {
 
         /* Make background travel on loop */
         background.tilePosition.y += backgroundSpeed;
-        callToAction.tilePosition.x += backgroundSpeed * 4;
+        callToAction.tilePosition.x += backgroundSpeed * 2;
 
         /* It's incrementing the tick variable by 1. */
         tick += 1;
@@ -450,7 +450,7 @@ function display() {
                     /* Setting the endScene variable to true. */
                     endScene = true;
                 }
-            }, (10 * 1000));
+            }, (15 * 1000));
 
             /* It's setting the userX variable to the x position of the mouse or the touch. */
             onpointerdown = (event) => { userX = event.x; };
