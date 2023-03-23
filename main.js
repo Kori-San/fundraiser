@@ -82,10 +82,15 @@ function display() {
     const postersAsset = [
         'assets/gant.png',
         'assets/plane.png',
+        'assets/gant.png',
+        'assets/plane.png',
+        'assets/gant.png',
+        'assets/plane.png',
         null
     ];
     let posterIndex = 0;
     let noPoster = false;
+    let posterSpeed = 2;
 
     /*
     * Background creation:
@@ -289,6 +294,14 @@ function display() {
 
         /* When we're in the game scene (so we are neither in the start nor end scene) */
         if (!startScene && !endScene) {
+
+            if (poster.x > app.screen.width || poster.x < 0) {
+                posterSpeed *= -1;
+            }
+            
+            /* It's moving the hand */
+            poster.x += posterSpeed;
+
             /* It's checking if the user is touching the screen. */
             if (isDown) {
                 if (plane.x > userX) {
@@ -336,6 +349,10 @@ function display() {
 
                     /* Increments the posterIndex and if there is a poster in the postersAsset array at the posterIndex, it sets the poster texture to the next poster in the array. */
                     posterIndex += 1;
+
+                    if (posterIndex % 4 == 0) {
+                        posterSpeed += 2;
+                    } 
 
                     if (postersAsset[posterIndex] != null) {
                         let nextTexture = PIXI.Texture.from(postersAsset[posterIndex]);
