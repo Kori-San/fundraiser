@@ -60,10 +60,23 @@ function display() {
     const downloadLogoAnchor = 0.5;
     let downloadLogoAngle = 0.5;
 
+    // Download Button Parameters
+    const downloadButtonScale = 0.175;
+    const downloadButtonAnchor = 0.5;
+    const downloadButtonHeight = ctaHeight + 30;
+    const downloadButtonOffset = app.screen.width - 90;
+
+    // Download Button Parameters
+    const logoScale = 0.175;
+    const logoAnchor = 0.5;
+    const logoHeight = ctaHeight + 30;
+    const logoOffset = 90;
+
     // Missil / MissilObject Parameters
     const missilsObject = [];
     const missilScale = 0.075;
-    const missilAnchor = 1.493; // 49 3 Pour bien être au centre
+    const missilAnchor = 1.493; // 49.3 Pour bien être au centre mais un peu à droite quand même
+    const missilSpeed = 3;
 
     // Poster
     const postersAsset = [
@@ -201,12 +214,58 @@ function display() {
     downloadLogo.x = (app.screen.width / 2) - (downloadLogo.width / 2);
     downloadLogo.y = app.screen.height / 3;
 
+    /*
+    * Download Button creation:
+    * Create a Download Button sprite and scaling it so it can fit the screen.
+    * The Download Button's center is also anchored into the middle of it's own texture.
+    * 
+    * The Download Button is centered to the middle of the screen and he share 
+    * the height of the CTA.
+    */
+    const downloadButton = PIXI.Sprite.from('assets/downloadButton.png');
+    downloadButton.anchor.set(downloadButtonAnchor);
+    downloadButton.scale.set(downloadButtonScale);
+
+    downloadButton.x = downloadButtonOffset;
+    downloadButton.y = downloadButtonHeight;
+
+    /*
+    * Logo creation:
+    * Create a Logo and scaling it so it can fit the screen.
+    * The Download Butotn's center is also anchored into the middle of it's own texture.
+    * 
+    * The Download Button is centered to the middle of the screen and he share 
+    * the height of the CTA.
+    */
+    const logo = PIXI.Sprite.from('assets/logo.png');
+    logo.anchor.set(logoAnchor);
+    logo.scale.set(logoScale);
+
+    logo.x = logoOffset;
+    logo.y = logoHeight;
+
+    /*
+    * Poster creation:
+    * Create a Poster sprite and scaling it so it can fit the screen.
+    * The Poster's center is also anchored into the middle of it's own texture.
+    * 
+    * The Poster is centered to the middle of the screen and he share 
+    * the height of 1/3 the size of the screen.
+    */
     let poster = PIXI.Sprite.from(postersAsset[posterIndex]);
     poster.anchor.set(0.5);
     poster.scale.set(0.075);
 
     poster.x = (app.screen.width / 2) - (poster.width / 2);
     poster.y = app.screen.height / 3;
+
+    /* Making the CTA interactive. When the user clicks on an element of the CTA the user is redirected to the Netflix website. */
+    [downloadButton, logo, downloadLogo].forEach(element => {
+        element.eventMode = 'static';
+        element.on('pointerdown', () => {
+            location.href = 'https://www.netflix.com/fr/';
+        })
+    });
 
     /*
     * App Ticker:
@@ -259,7 +318,7 @@ function display() {
                 app.stage.addChild(missil);
             }
             missilsObject.forEach(function (missil) {
-                missil.y -= 3;
+                missil.y -= missilSpeed;
                 if (missil.y < 0) {
                     app.stage.removeChild(missil);
                 }
@@ -274,7 +333,7 @@ function display() {
 
                     if (postersAsset[posterIndex] != null) {
                         let nextTexture = PIXI.Texture.from(postersAsset[posterIndex]);
-                        
+
                         poster.texture = nextTexture
                     }
                     else {
@@ -323,14 +382,21 @@ function display() {
 
             /* It's removing the call to action after 10 seconds and add the veil to the scene */
             setTimeout(() => {
+                /* Removing the call to action and the download button from the stage. */
                 app.stage.removeChild(callToAction);
+                app.stage.removeChild(downloadButton);
+                app.stage.removeChild(logo);
+
+                /* Adding the veil and the download logo to the stage. */
                 app.stage.addChild(veil);
                 app.stage.addChild(downloadLogo);
 
+                /* Removing all the missils from the stage. */
                 missilsObject.forEach(function (missil) {
                     app.stage.removeChild(missil);
                 });
 
+                /* Setting the endScene variable to true. */
                 endScene = true;
             }, (10 * 1000));
 
@@ -376,6 +442,13 @@ function display() {
 
     /* CTA is always last to appear */
     app.stage.addChild(callToAction);
+    app.stage.addChild(downloadButton);
+    app.stage.addChild(logo);
+
+    if (endScene) {
+        app.stage.addChild(veil);
+        app.stage.addChild(downloadLogo);
+    }
 }
 
 /*
@@ -390,7 +463,7 @@ const app = new PIXI.Application({
     transparent: true,
 });
 
-/* Optionnal: Make the app responsive */
+/* Optionnal: Make the app truly responsive */
 window.addEventListener("resize", () => {
     display()
 })
