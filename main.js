@@ -69,9 +69,9 @@ function display() {
     * with the size of the window and an alpha != 1 so you can still see the game scene.
     */
     const veil = new PIXI.Graphics()
-    .beginFill(0x00000, 0.60)
-    .drawRect(0, 0, app.screen.width, app.screen.height)
-    .endFill();
+        .beginFill(0x00000, 0.60)
+        .drawRect(0, 0, app.screen.width, app.screen.height)
+        .endFill();
 
     /*
     * CTA creation:
@@ -79,9 +79,9 @@ function display() {
     * It uses the offial 'Dark Netflix Red' color: #B20710.
     */
     const callToAction = new PIXI.Graphics()
-    .beginFill(0xB20710)
-    .drawRect(0, ctaHeight, app.screen.width, app.screen.height)
-    .endFill();
+        .beginFill(0xB20710)
+        .drawRect(0, ctaHeight, app.screen.width, app.screen.height)
+        .endFill();
 
     /*
     * textTutorial creation:
@@ -128,7 +128,7 @@ function display() {
     leftArrow.x = (app.screen.width / 2) - (textTutorial.width / 2);
     rightArrow.x = (app.screen.width / 2) + ((textTutorial.width / 2) - (rightArrow.width));
 
-    leftArrow.y = arrowHeight; 
+    leftArrow.y = arrowHeight;
     rightArrow.y = arrowHeight;
 
     /*
@@ -162,8 +162,6 @@ function display() {
     plane.x = (app.screen.width / 2) - (plane.width / 2);
     plane.y = ctaHeight - planeStep;
 
-    console.log(plane.x, plane.y);  
-
     /*
     * Download Logo creation:
     * Create a Dowload Logo sprite and scaling it so it can fit the screen.
@@ -175,7 +173,7 @@ function display() {
     const downloadLogo = PIXI.Sprite.from('assets/downloadLogo.png');
     downloadLogo.anchor.set(0.5);
     downloadLogo.scale.set(downloadLogoScale);
-    
+
     downloadLogo.x = (app.screen.width / 2) - (downloadLogo.width / 2);
     downloadLogo.y = app.screen.height / 3;
 
@@ -224,10 +222,9 @@ function display() {
                 missilsObject.push(missil);
                 app.stage.addChild(missil);
             }
-            missilsObject.forEach(function(missil) {
+            missilsObject.forEach(function (missil) {
                 missil.y -= 3;
                 if (missil.y < 0) {
-                    console.log('go');
                     app.stage.removeChild(missil)
                 }
             });
@@ -241,7 +238,7 @@ function display() {
             }
 
             /* It's making the downloadLogo rotate. */
-            downloadLogo.angle += downloadLogoAngle;    
+            downloadLogo.angle += downloadLogoAngle;
         }
 
         tick += 1;
@@ -249,49 +246,43 @@ function display() {
 
     /*
     * EventListener handling:
-    * Make 'mousedown | mouseup' and 'touchstart | touchend' trigger events.
+    * Make 'pointerup' and 'pointerdown' trigger events.
     */
     /* It's adding an event listener which handle the game scene start */
-    ['mousedown', 'touchstart'].forEach(event =>
-        document.querySelector('canvas').addEventListener(event, () => {
-            if (startScene) {
-                /* Init userX to the listener's x position */
+    document.querySelector('canvas').addEventListener('pointerdown', () => {
+        if (startScene) {
+            /* Init userX to the listener's x position */
 
-                /* It's removing the elements of the start scene. */
-                app.stage.removeChild(glove);
-                app.stage.removeChild(rightArrow);
-                app.stage.removeChild(leftArrow);
-                app.stage.removeChild(textTutorial);
+            /* It's removing the elements of the start scene. */
+            app.stage.removeChild(glove);
+            app.stage.removeChild(rightArrow);
+            app.stage.removeChild(leftArrow);
+            app.stage.removeChild(textTutorial);
 
-                /* It's setting the startScene variable to false so the game can start */
-                startScene = false;
+            /* It's setting the startScene variable to false so the game can start */
+            startScene = false;
 
-                /* It's removing the call to action after 10 seconds and add the veil to the scene */
-                setTimeout(() => {
-                    app.stage.removeChild(callToAction);
-                    app.stage.addChild(veil);
-                    app.stage.addChild(downloadLogo);
-                    endScene = true;
-                }, (10 * 1000));
+            /* It's removing the call to action after 10 seconds and add the veil to the scene */
+            setTimeout(() => {
+                app.stage.removeChild(callToAction);
+                app.stage.addChild(veil);
+                app.stage.addChild(downloadLogo);
+                endScene = true;
+            }, (10 * 1000));
 
-                /* It's setting the userX variable to the x position of the mouse or the touch. */
-                onmousedown = (event) => userX = event.x;
-                onmousemove = (event) => userX = event.x;
+            /* It's setting the userX variable to the x position of the mouse or the touch. */
+            onpointermove = (event) => { userX = event.x; };
+        }
 
-                ontouchstart = (event) => userX = event.x;
-                ontouchmove = (event) => userX = event.x;
-            }
-
-            /* It's setting the isDown variable to true */
-            isDown = true;
-        }));
+        /* It's setting the isDown variable to true */
+        isDown = true;
+    });
 
     /* It's adding an event listener to the canvas */
-    ['mouseup', 'touchend'].forEach(event =>
+    document.querySelector('canvas').addEventListener('pointerup', () => {
         /* It's setting the isDown variable to false. */
-        document.querySelector('canvas').addEventListener(event, () => {
-            isDown = false;
-        }));
+        isDown = false;
+    });
 
     /*
     * Stage creation:
