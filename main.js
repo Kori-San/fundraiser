@@ -72,6 +72,7 @@ function display() {
         null
     ];
     let posterIndex = 0;
+    let noPoster = false;
 
     /*
     * Background creation:
@@ -259,16 +260,15 @@ function display() {
             }
             missilsObject.forEach(function (missil) {
                 missil.y -= 3;
-                if (
-                    missil.y < 0
-                    ||
-                    checkCollision(missil, poster)
-                ) {
+                if (missil.y < 0) {
                     app.stage.removeChild(missil);
                 }
 
-                if (checkCollision(missil, poster)) {
-                    console.log('go');
+                if (checkCollision(missil, poster) && !noPoster) {
+                    app.stage.removeChild(missil);
+                    const index = missilsObject.indexOf(missil);
+
+                    const x = missilsObject.splice(index, 1);
 
                     posterIndex += 1;
 
@@ -278,11 +278,10 @@ function display() {
                         poster.texture = nextTexture
                     }
                     else {
+                        noPoster = true;
                         app.stage.removeChild(poster);
                     }
-                    
                 }
-                
             });
         }
 
