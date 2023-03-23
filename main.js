@@ -260,7 +260,7 @@ function display() {
 
     /* Making the CTA interactive. When the user clicks on an element of the CTA the user is redirected to the Netflix website. */
     [downloadButton, logo, downloadLogo].forEach(element => {
-        element.interactive = true;
+        element.eventMode = 'static';
         element.on('pointerdown', () => {
             location.href = 'https://www.netflix.com/fr/';
         })
