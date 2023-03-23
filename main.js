@@ -177,6 +177,13 @@ function display() {
     downloadLogo.x = (app.screen.width / 2) - (downloadLogo.width / 2);
     downloadLogo.y = app.screen.height / 3;
 
+    const poster = PIXI.Sprite.from('assets/gant.png');
+    poster.anchor.set(0.5);
+    poster.scale.set(0.075);
+
+    poster.x = (app.screen.width / 2) - (poster.width / 2);
+    poster.y = app.screen.height / 3;
+
     /*
     * App Ticker:
     * The ticker manages all the events that occurs every tick (~ frame).
@@ -258,6 +265,8 @@ function display() {
             app.stage.removeChild(rightArrow);
             app.stage.removeChild(leftArrow);
             app.stage.removeChild(textTutorial);
+
+            app.stage.addChild(poster);
 
             /* It's setting the startScene variable to false so the game can start */
             startScene = false;
