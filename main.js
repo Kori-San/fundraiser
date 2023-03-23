@@ -265,10 +265,10 @@ function display() {
     poster.y = app.screen.height / 3;
 
     /* Making the CTA interactive. When the user clicks on an element of the CTA the user is redirected to the Netflix website. */
-    [downloadButton, logo, downloadLogo].forEach(element => {
+    [downloadButton, logo, downloadLogo, veil].forEach(element => {
         element.eventMode = 'static';
         element.on('pointerdown', () => {
-            location.href = 'https://www.netflix.com/fr/';
+            location.href = 'https://www.netflix.com/';
         })
     });
 
@@ -304,10 +304,10 @@ function display() {
 
             /* It's checking if the user is touching the screen. */
             if (isDown) {
-                if (plane.x > userX) {
+                if (plane.x >= userX + planeSpeed) {
                     plane.x -= planeSpeed;
                 }
-                else if (plane.x < userX) {
+                else if (plane.x <= userX - planeSpeed) {
                     plane.x += planeSpeed;
                 }
             }
