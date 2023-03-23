@@ -263,7 +263,7 @@ function display() {
     [downloadButton, logo, downloadLogo].forEach(element => {
         element.eventMode = 'static';
         element.on('pointerdown', () => {
-            location.href = 'https://www.netflix.com/fr/';
+            location.href = 'https://www.netflix.com/';
         })
     });
 
@@ -291,10 +291,10 @@ function display() {
         if (!startScene && !endScene) {
             /* It's checking if the user is touching the screen. */
             if (isDown) {
-                if (plane.x > userX) {
+                if (plane.x >= userX + planeSpeed) {
                     plane.x -= planeSpeed;
                 }
-                else if (plane.x < userX) {
+                else if (plane.x <= userX - planeSpeed) {
                     plane.x += planeSpeed;
                 }
             }
