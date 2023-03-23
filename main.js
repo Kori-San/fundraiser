@@ -260,8 +260,7 @@ function display() {
 
 
     /* Sound initialize */
-    const cashMp3 = PIXI.sound.Sound.from('assets/cash.mp3');
-    const seasonApprovedMp3 = PIXI.sound.Sound.from('assets/seasonApproved.mp3');
+    const cashMp3 = PIXI.sound.Sound.from('/sounds/cash.mp3');
 
     /*
     * App Ticker:
