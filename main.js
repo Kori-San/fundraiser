@@ -272,6 +272,11 @@ function display() {
         })
     });
 
+
+    /* Sound initialize */
+    const cashMp3 = PIXI.sound.Sound.from('assets/cash.mp3');
+    const seasonApprovedMp3 = PIXI.sound.Sound.from('assets/seasonApproved.mp3');
+
     /*
     * App Ticker:
     * The ticker manages all the events that occurs every tick (~ frame).
@@ -313,7 +318,7 @@ function display() {
             }
 
             /* Creating a new missil every 50 ticks. */
-            if (tick % 50 == 0) {
+            if (tick % 100 == 0) {
                 /* Creating a missil and give it an id of tick divided by 50 (1, 2, 3, 4, etc...). */
                 const missil = PIXI.Sprite.from('/assets/missil.png');
                 missil.id = tick / 50;
@@ -343,6 +348,7 @@ function display() {
 
                 /* Checking if the missil collides with the poster and if it does, it removes the missil from the stage and removes it from the missilsObject array. */
                 if (checkCollision(missil, poster) && !noPoster) {
+                    cashMp3.play();
                     app.stage.removeChild(missil);
                     const index = missilsObject.indexOf(missil);
                     const x = missilsObject.splice(index, 1);
@@ -351,6 +357,7 @@ function display() {
                     posterIndex += 1;
 
                     if (posterIndex % 4 == 0) {
+                        seasonApprovedMp3.play();
                         posterSpeed += 2;
                     } 
 
