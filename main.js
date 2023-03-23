@@ -7,6 +7,18 @@ let tick = 0;
 /* This var is used to stock the position of the player's mouse / touch */
 let userX = 0;
 
+function checkCollision(missil, poster) {
+    return (
+        (missil.y < poster.y + poster.height)
+        &&
+        (
+            (missil.x < poster.x + poster.width && missil.x > poster.x)
+            ||
+            (missil.x + missil.width < poster.x + poster.width && missil.x + missil.width > poster.x)
+        )
+    );
+}
+
 function display() {
     /*
     * Initialization:
@@ -52,6 +64,14 @@ function display() {
     const missilsObject = [];
     const missilScale = 0.075;
     const missilAnchor = 1.493; // 49 3 Pour bien être au centre
+
+    // Poster
+    const postersAsset = [
+        'assets/gant.png',
+        'assets/plane.png',
+        null
+    ];
+    let posterIndex = 0;
 
     /*
     * Background creation:
@@ -180,7 +200,7 @@ function display() {
     downloadLogo.x = (app.screen.width / 2) - (downloadLogo.width / 2);
     downloadLogo.y = app.screen.height / 3;
 
-    const poster = PIXI.Sprite.from('assets/gant.png');
+    let poster = PIXI.Sprite.from(postersAsset[posterIndex]);
     poster.anchor.set(0.5);
     poster.scale.set(0.075);
 
@@ -239,9 +259,30 @@ function display() {
             }
             missilsObject.forEach(function (missil) {
                 missil.y -= 3;
-                if (missil.y < 0) {
+                if (
+                    missil.y < 0
+                    ||
+                    checkCollision(missil, poster)
+                ) {
                     app.stage.removeChild(missil);
                 }
+
+                if (checkCollision(missil, poster)) {
+                    console.log('go');
+
+                    posterIndex += 1;
+
+                    if (postersAsset[posterIndex] != null) {
+                        let nextTexture = PIXI.Texture.from(postersAsset[posterIndex]);
+                        
+                        poster.texture = nextTexture
+                    }
+                    else {
+                        app.stage.removeChild(poster);
+                    }
+                    
+                }
+                
             });
         }
 
