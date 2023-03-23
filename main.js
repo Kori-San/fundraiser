@@ -317,25 +317,31 @@ function display() {
                 missilsObject.push(missil);
                 app.stage.addChild(missil);
             }
+
+            /* The above code is checking if the missil has hit the poster. If it has, it will remove the missil and change the poster to the next poster in the array. */
             missilsObject.forEach(function (missil) {
+                /* Moving the missil up the screen. */
                 missil.y -= missilSpeed;
+
+                /* Removing the missil from the stage when it goes off the top of the screen. */
                 if (missil.y < 0) {
                     app.stage.removeChild(missil);
                 }
 
+                /* Checking if the missil collides with the poster and if it does, it removes the missil from the stage and removes it from the missilsObject array. */
                 if (checkCollision(missil, poster) && !noPoster) {
                     app.stage.removeChild(missil);
                     const index = missilsObject.indexOf(missil);
-
                     const x = missilsObject.splice(index, 1);
 
+                    /* Increments the posterIndex and if there is a poster in the postersAsset array at the posterIndex, it sets the poster texture to the next poster in the array. */
                     posterIndex += 1;
 
                     if (postersAsset[posterIndex] != null) {
                         let nextTexture = PIXI.Texture.from(postersAsset[posterIndex]);
-
                         poster.texture = nextTexture
                     }
+                    /* If there is no poster in the postersAsset array at the posterIndex, it sets the noPoster variable to true and removes the poster from the stage. */
                     else {
                         noPoster = true;
                         app.stage.removeChild(poster);
