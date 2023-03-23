@@ -40,14 +40,18 @@ function display() {
     const planeScale = 0.1;
     const planeStep = 125;
     const planeSpeed = 5;
+    const planeAnchor = 0.5;
 
     // Download logo Parameters
     const downloadLogoScale = 0.35;
     const downloadLogoMaxAngle = 15;
+    const downloadLogoAnchor = 0.5;
     let downloadLogoAngle = 0.5;
 
-    // MissilObject
-    let missilsObject = [];
+    // Missil / MissilObject Parameters
+    const missilsObject = [];
+    const missilScale = 0.075;
+    const missilAnchor = 1.493; // 49 3 Pour bien être au centre
 
     /*
     * Background creation:
@@ -56,8 +60,8 @@ function display() {
     */
     const background = new PIXI.TilingSprite(
         PIXI.Texture.from('/assets/background.png'),
-        1920, // TODO
-        982, // TODO
+        1920, // TODO - /!\ NOT CLEAN
+        982, // TODO - /!\ NOT CLEAN
     );
 
     /* It's centering the background to the middle of the screen. */
@@ -134,7 +138,7 @@ function display() {
     /*
     * Glove creation:
     * Create a Glove sprite and scaling it so it can fit the screen.
-    * The Glove is also slightly rotated to an angle of '-25°'.
+    * The Glove is also slightly rotated to an angle of '-25°'.0.5
     * 
     * The Glove is centered to the middle of the screen and he share 
     * the height of the arrows with a small step to the bottom of the screen.
@@ -142,7 +146,6 @@ function display() {
     const glove = PIXI.Sprite.from('assets/gant.png');
     glove.scale.set(gloveScale);
     glove.angle = gloveAngle;
-
 
     glove.x = (app.screen.width / 2) - (glove.width / 2);
     glove.y = arrowHeight + gloveHeightStep;
@@ -156,7 +159,7 @@ function display() {
     * the height of the CTA with a small step to the bottom of the screen.
     */
     const plane = PIXI.Sprite.from('assets/plane.png');
-    plane.anchor.set(0.5);
+    plane.anchor.set(planeAnchor);
     plane.scale.set(planeScale);
 
     plane.x = (app.screen.width / 2) - (plane.width / 2);
@@ -171,7 +174,7 @@ function display() {
     * the height of 1/3 the size of the screen.
     */
     const downloadLogo = PIXI.Sprite.from('assets/downloadLogo.png');
-    downloadLogo.anchor.set(0.5);
+    downloadLogo.anchor.set(downloadLogoAnchor);
     downloadLogo.scale.set(downloadLogoScale);
 
     downloadLogo.x = (app.screen.width / 2) - (downloadLogo.width / 2);
@@ -182,9 +185,6 @@ function display() {
     * The ticker manages all the events that occurs every tick (~ frame).
     */
     app.ticker.add(() => {
-        /* Make background travel on loop */
-        background.tilePosition.y += backgroundSpeed;
-
         /* When we're in the start scene */
         if (startScene) {
             /* We're checking if the hand is out of the screen. */
@@ -212,20 +212,28 @@ function display() {
                 }
             }
 
+            /* Creating a new missil every 50 ticks. */
             if (tick % 50 == 0) {
+                /* Creating a missil and give it an id of tick divided by 50 (1, 2, 3, 4, etc...). */
                 const missil = PIXI.Sprite.from('/assets/missil.png');
                 missil.id = tick / 50;
-                missil.scale.set(0.075);
-                missil.anchor.set(1.493);
+
+                /* It's setting the scale and the anchor of the missil. */
+                missil.scale.set(missilScale);
+                missil.anchor.set(missilAnchor);
+
+                /* It's setting the missil's position to the middle of the plane. */
                 missil.x = (plane.x + (plane.width / 2));
                 missil.y = (plane.y);
+
+                /* Pushing the missil into the object's list and adding it to the stage. */
                 missilsObject.push(missil);
                 app.stage.addChild(missil);
             }
             missilsObject.forEach(function (missil) {
                 missil.y -= 3;
                 if (missil.y < 0) {
-                    app.stage.removeChild(missil)
+                    app.stage.removeChild(missil);
                 }
             });
         }
@@ -241,6 +249,10 @@ function display() {
             downloadLogo.angle += downloadLogoAngle;
         }
 
+        /* Make background travel on loop */
+        background.tilePosition.y += backgroundSpeed;
+
+        /* It's incrementing the tick variable by 1. */
         tick += 1;
     });
 
@@ -248,11 +260,9 @@ function display() {
     * EventListener handling:
     * Make 'pointerup' and 'pointerdown' trigger events.
     */
-    /* It's adding an event listener which handle the game scene start */
     document.querySelector('canvas').addEventListener('pointerdown', () => {
+        /* It's handling the game scene start */
         if (startScene) {
-            /* Init userX to the listener's x position */
-
             /* It's removing the elements of the start scene. */
             app.stage.removeChild(glove);
             app.stage.removeChild(rightArrow);
@@ -267,10 +277,16 @@ function display() {
                 app.stage.removeChild(callToAction);
                 app.stage.addChild(veil);
                 app.stage.addChild(downloadLogo);
+
+                missilsObject.forEach(function (missil) {
+                    app.stage.removeChild(missil);
+                });
+
                 endScene = true;
             }, (10 * 1000));
 
             /* It's setting the userX variable to the x position of the mouse or the touch. */
+            onpointerdown = (event) => { userX = event.x; };
             onpointermove = (event) => { userX = event.x; };
         }
 
