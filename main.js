@@ -9,13 +9,7 @@ let userX = 0;
 
 function checkCollision(missil, poster) {
     return (
-        (missil.y < poster.y + poster.height)
-        &&
-        (
-            (missil.x < poster.x + poster.width && missil.x > poster.x)
-            ||
-            (missil.x + missil.width < poster.x + poster.width && missil.x + missil.width > poster.x)
-        )
+        (missil.y < (poster.y + poster.height)) && (((missil.x < (poster.x + poster.width)) && (missil.x > poster.x)) || ((missil.x + missil.width) < (poster.x + poster.width) && ((missil.x + missil.width) > poster.x)))
     );
 }
 
@@ -34,36 +28,38 @@ function display() {
     * it allows the devs to change the vars if needed to polish the display. 
     */
     // Background Parameters
-    const backgroundSpeed = 1;
+    const backgroundSpeed = 2;
+    const backgroundScale = app.screen.width / (1100);
 
     // Call To Action Parameters
     const ctaHeight = app.screen.height - 75;
 
     // Arrows Parameters
-    const arrowHeight = ctaHeight - 125;
+    const arrowHeight = ctaHeight - 25;
+    const arrowAnchor = 0.5;
 
     // Glove Parameters
-    const gloveScale = 0.075;
-    const gloveAngle = -25;
-    const gloveHeightStep = 30;
+    const gloveScale = 0.2;
+    const gloveAngle = -35;
+    const gloveHeightStep = 50;
     let gloveSpeed = 1.5;
 
     // Plane Parameters
-    const planeScale = 0.1;
-    const planeStep = 125;
+    const planeScale = 0.275;
+    const planeStep = 150;
     const planeSpeed = 5;
     const planeAnchor = 0.5;
 
     // Download logo Parameters
-    const downloadLogoScale = 0.35;
+    const downloadLogoScale = 0.5;
     const downloadLogoMaxAngle = 15;
     const downloadLogoAnchor = 0.5;
     let downloadLogoAngle = 0.5;
 
     // Download Button Parameters
-    const downloadButtonScale = 0.175;
+    const downloadButtonScale = 0.35;
     const downloadButtonAnchor = 0.5;
-    const downloadButtonHeight = ctaHeight + 30;
+    const downloadButtonHeight = ctaHeight + 25;
     const downloadButtonOffset = app.screen.width - 90;
 
     // Download Button Parameters
@@ -74,23 +70,26 @@ function display() {
 
     // Missil / MissilObject Parameters
     const missilsObject = [];
-    const missilScale = 0.075;
+    const missilScale = 0.13;
     const missilAnchor = 1.493; // 49.3 Pour bien être au centre mais un peu à droite quand même
     const missilSpeed = 3;
 
     // Poster
     const postersAsset = [
-        'assets/gant.png',
-        'assets/plane.png',
-        'assets/gant.png',
-        'assets/plane.png',
-        'assets/gant.png',
-        'assets/plane.png',
+        '/assets/season1.svg',
+        '/assets/season2.svg',
+        '/assets/season3.svg',
+        '/assets/season4.svg',
         null
     ];
     let posterIndex = 0;
     let noPoster = false;
-    let posterSpeed = 2;
+
+    const posterInitSpeed = 1.5;
+    let posterSpeed = posterInitSpeed;
+
+    const posterInitHP = 4;
+    let posterHP = posterInitHP;
 
     /*
     * Background creation:
@@ -98,13 +97,13 @@ function display() {
     * In WebGL the image size should preferably be a power of two.
     */
     const background = new PIXI.TilingSprite(
-        PIXI.Texture.from('/assets/background.png'),
-        1920, // TODO - /!\ NOT CLEAN
-        982, // TODO - /!\ NOT CLEAN
+        PIXI.Texture.from('/assets/background.svg'),
+        15000, // TODO - /!\ NOT CLEAN
+        15000, // TODO - /!\ NOT CLEAN
     );
 
-    /* It's centering the background to the middle of the screen. */
-    background.x = (app.screen.width / 2) - (background.width / 2);
+    background.scale.set(backgroundScale);
+    background.alpha = (0.55);
 
     /* 
     * Veil creation:
@@ -121,23 +120,27 @@ function display() {
     * It's creating a red rectangle at the top of the screen used as a call to action.
     * It uses the offial 'Dark Netflix Red' color: #B20710.
     */
-    const callToAction = new PIXI.Graphics()
-        .beginFill(0xB20710)
-        .drawRect(0, ctaHeight, app.screen.width, app.screen.height)
-        .endFill();
+    const callToAction = new PIXI.TilingSprite(
+        PIXI.Texture.from('/assets/cta.svg'),
+        20000, // TODO - /!\ NOT CLEAN
+        20000, // TODO - /!\ NOT CLEAN
+    );
 
+    callToAction.x = 0;
+    callToAction.y = ctaHeight;
+    callToAction.scale.set(0.1);
     /*
     * textTutorial creation:
     * Creating a new text object with the text "Swipe to move !".
     * The style is defined by an anonymous PIXI.TextStyle.
     */
     const textTutorial = new PIXI.Text('Swipe to move !', new PIXI.TextStyle({
-        fontFamily: 'Arial', // TODO: CHANGE IT
-        fontSize: 40,
+        fontFamily: '/font/BebasNeue.otf', // TODO: CHANGE IT
+        fontSize: 45,
         fontWeight: 'bold',
-        fill: '#ffffff',
+        fill: '#e50914',
         stroke: '#000000',
-        strokeThickness: 5,
+        strokeThickness: 1,
     }));
 
     /*
@@ -149,30 +152,13 @@ function display() {
 
     /*
     * Arrows creation:
-    * Creating two new text objects, each one displaying an arrow.
-    * The style is defined by a PIXI.TextStyle named 'styleArrow'
-    * and is centered by the textTutorial object.
+    * ...
     */
-    const styleArrow = new PIXI.TextStyle({
-        fontFamily: 'Arial',
-        fontSize: 80,
-        fill: '#ffffff',
-    });
-
-    const leftArrow = new PIXI.Text('<', styleArrow);
-    const rightArrow = new PIXI.Text('>', styleArrow);
-
-    /* Arrows styling:
-    * Adjusting the arrows with textTutorial's width.
-    * Right arrow need to substract it's own width so it doesn't appear after textTutorial.
-    * 
-    * Both arrows share the same height which is calculated prior to the creation of the arrows.
-    */
-    leftArrow.x = (app.screen.width / 2) - (textTutorial.width / 2);
-    rightArrow.x = (app.screen.width / 2) + ((textTutorial.width / 2) - (rightArrow.width));
-
-    leftArrow.y = arrowHeight;
-    rightArrow.y = arrowHeight;
+    const arrow = PIXI.Sprite.from('/assets/swipe.svg');
+    arrow.anchor.set(arrowAnchor);
+    arrow.scale.set(0.5);
+    arrow.x = (app.screen.width / 2);
+    arrow.y = arrowHeight;
 
     /*
     * Glove creation:
@@ -182,12 +168,12 @@ function display() {
     * The Glove is centered to the middle of the screen and he share 
     * the height of the arrows with a small step to the bottom of the screen.
     */
-    const glove = PIXI.Sprite.from('assets/gant.png');
+    const glove = PIXI.Sprite.from('/assets/glove.svg');
     glove.scale.set(gloveScale);
     glove.angle = gloveAngle;
 
-    glove.x = (app.screen.width / 2) - (glove.width / 2);
-    glove.y = arrowHeight + gloveHeightStep;
+    glove.x = arrow.x;
+    glove.y = arrowHeight - gloveHeightStep;
 
     /*
     * Plane creation:
@@ -197,7 +183,7 @@ function display() {
     * The Plane is centered to the middle of the screen and he share 
     * the height of the CTA with a small step to the bottom of the screen.
     */
-    const plane = PIXI.Sprite.from('assets/plane.png');
+    const plane = PIXI.Sprite.from('/assets/plane.svg');
     plane.anchor.set(planeAnchor);
     plane.scale.set(planeScale);
 
@@ -212,7 +198,7 @@ function display() {
     * The Download Logo is centered to the middle of the screen and he share 
     * the height of 1/3 the size of the screen.
     */
-    const downloadLogo = PIXI.Sprite.from('assets/downloadLogo.png');
+    const downloadLogo = PIXI.Sprite.from('/assets/downloadLogo.svg');
     downloadLogo.anchor.set(downloadLogoAnchor);
     downloadLogo.scale.set(downloadLogoScale);
 
@@ -227,7 +213,7 @@ function display() {
     * The Download Button is centered to the middle of the screen and he share 
     * the height of the CTA.
     */
-    const downloadButton = PIXI.Sprite.from('assets/downloadButton.png');
+    const downloadButton = PIXI.Sprite.from('/assets/downloadButton.svg');
     downloadButton.anchor.set(downloadButtonAnchor);
     downloadButton.scale.set(downloadButtonScale);
 
@@ -242,7 +228,7 @@ function display() {
     * The Download Button is centered to the middle of the screen and he share 
     * the height of the CTA.
     */
-    const logo = PIXI.Sprite.from('assets/logo.png');
+    const logo = PIXI.Sprite.from('/assets/logo.png');
     logo.anchor.set(logoAnchor);
     logo.scale.set(logoScale);
 
@@ -259,10 +245,10 @@ function display() {
     */
     let poster = PIXI.Sprite.from(postersAsset[posterIndex]);
     poster.anchor.set(0.5);
-    poster.scale.set(0.075);
+    poster.scale.set(0.25);
 
     poster.x = (app.screen.width / 2) - (poster.width / 2);
-    poster.y = app.screen.height / 3;
+    poster.y = app.screen.height / 4;
 
     /* Making the CTA interactive. When the user clicks on an element of the CTA the user is redirected to the Netflix website. */
     [downloadButton, logo, downloadLogo, veil].forEach(element => {
@@ -280,7 +266,7 @@ function display() {
         /* When we're in the start scene */
         if (startScene) {
             /* We're checking if the hand is out of the screen. */
-            if (glove.x > (rightArrow.x - rightArrow.width) || glove.x < (leftArrow.x - leftArrow.width + 20)) {
+            if (glove.x < (arrow.x - (arrow.width / 2) - (glove.width / 2)) || glove.x > (arrow.x + glove.width / 2)) {
                 gloveSpeed *= -1; // Inverse speed so the glove can go both directions
             }
 
@@ -288,7 +274,7 @@ function display() {
             glove.x += gloveSpeed;
 
             /* It's making the text animates */
-            textTutorial.style.fontSize += gloveSpeed * 0.1;
+            textTutorial.style.fontSize += gloveSpeed * 0.025;
             textTutorial.x = (app.screen.width / 2) - (textTutorial.width / 2);
         }
 
@@ -298,7 +284,7 @@ function display() {
             if (poster.x > app.screen.width || poster.x < 0) {
                 posterSpeed *= -1;
             }
-            
+
             /* It's moving the hand */
             poster.x += posterSpeed;
 
@@ -315,7 +301,7 @@ function display() {
             /* Creating a new missil every 50 ticks. */
             if (tick % 50 == 0) {
                 /* Creating a missil and give it an id of tick divided by 50 (1, 2, 3, 4, etc...). */
-                const missil = PIXI.Sprite.from('/assets/missil.png');
+                const missil = PIXI.Sprite.from('/assets/missil.svg');
                 missil.id = tick / 50;
 
                 /* It's setting the scale and the anchor of the missil. */
@@ -337,74 +323,42 @@ function display() {
                 missil.y -= missilSpeed;
 
                 /* Removing the missil from the stage when it goes off the top of the screen. */
-                if (missil.y < 0) {
+                if (missil.y + missil.height < 0) {
                     app.stage.removeChild(missil);
                 }
 
                 /* Checking if the missil collides with the poster and if it does, it removes the missil from the stage and removes it from the missilsObject array. */
                 if (checkCollision(missil, poster) && !noPoster) {
+                    posterSpeed *= 1.075;
+                    posterHP -= 1;
+
                     app.stage.removeChild(missil);
                     const index = missilsObject.indexOf(missil);
                     const x = missilsObject.splice(index, 1);
 
-                    /* Increments the posterIndex and if there is a poster in the postersAsset array at the posterIndex, it sets the poster texture to the next poster in the array. */
-                    posterIndex += 1;
+                    if (posterHP == 0) {
+                        /* Increments the posterIndex and if there is a poster in the postersAsset array at the posterIndex, it sets the poster texture to the next poster in the array. */
+                        posterIndex += 1;
 
-                    if (posterIndex % 4 == 0) {
-                        posterSpeed += 2;
-                    } 
+                        /* Setting the HP and speed of the poster to the initial values plus the index of the poster. */
+                        posterHP = posterInitHP + posterIndex;
+                        posterSpeed = posterInitSpeed + posterIndex;
 
-                    if (postersAsset[posterIndex] != null) {
-                        let nextTexture = PIXI.Texture.from(postersAsset[posterIndex]);
-                        poster.texture = nextTexture
-                    }
-                    /* If there is no poster in the postersAsset array at the posterIndex, it sets the noPoster variable to true and removes the poster from the stage. */
-                    else {
-                        noPoster = true;
-                        app.stage.removeChild(poster);
+                        if (postersAsset[posterIndex] != null) {
+                            let nextTexture = PIXI.Texture.from(postersAsset[posterIndex]);
+                            poster.texture = nextTexture
+                        }
+
+                        /* If there is no poster in the postersAsset array at the posterIndex, it sets the noPoster variable to true and removes the poster from the stage. */
+                        else {
+                            noPoster = true;
+                            app.stage.removeChild(poster);
+                        }
                     }
                 }
             });
-        }
 
-        /* When we're in the end scene */
-        if (endScene) {
-            /* It's checking if the downloadLogo is at the max angle. If it is, it's inverting the angle. */
-            if (downloadLogo.angle > downloadLogoMaxAngle || downloadLogo.angle < - downloadLogoMaxAngle) {
-                downloadLogoAngle *= -1;
-            }
-
-            /* It's making the downloadLogo rotate. */
-            downloadLogo.angle += downloadLogoAngle;
-        }
-
-        /* Make background travel on loop */
-        background.tilePosition.y += backgroundSpeed;
-
-        /* It's incrementing the tick variable by 1. */
-        tick += 1;
-    });
-
-    /*
-    * EventListener handling:
-    * Make 'pointerup' and 'pointerdown' trigger events.
-    */
-    document.querySelector('canvas').addEventListener('pointerdown', () => {
-        /* It's handling the game scene start */
-        if (startScene) {
-            /* It's removing the elements of the start scene. */
-            app.stage.removeChild(glove);
-            app.stage.removeChild(rightArrow);
-            app.stage.removeChild(leftArrow);
-            app.stage.removeChild(textTutorial);
-
-            app.stage.addChild(poster);
-
-            /* It's setting the startScene variable to false so the game can start */
-            startScene = false;
-
-            /* It's removing the call to action after 10 seconds and add the veil to the scene */
-            setTimeout(() => {
+            if (noPoster) {
                 /* Removing the call to action and the download button from the stage. */
                 app.stage.removeChild(callToAction);
                 app.stage.removeChild(downloadButton);
@@ -421,6 +375,76 @@ function display() {
 
                 /* Setting the endScene variable to true. */
                 endScene = true;
+            }
+        }
+
+        /* When we're in the end scene */
+        if (endScene) {
+            /* It's checking if the downloadLogo is at the max angle. If it is, it's inverting the angle. */
+            if (downloadLogo.angle > downloadLogoMaxAngle || downloadLogo.angle < -downloadLogoMaxAngle) {
+                downloadLogoAngle *= -1;
+            }
+
+            /* It's making the downloadLogo rotate. */
+            downloadLogo.angle += downloadLogoAngle;
+        }
+
+        /* Make background travel on loop */
+        background.tilePosition.y += backgroundSpeed;
+        callToAction.tilePosition.x += backgroundSpeed * 4;
+
+        /* It's incrementing the tick variable by 1. */
+        tick += 1;
+    });
+
+    /*
+    * EventListener handling:
+    * Make 'pointerup' and 'pointerdown' trigger events.
+    */
+    document.querySelector('canvas').addEventListener('pointerdown', () => {
+        /* It's handling the game scene start */
+        if (startScene) {
+            /* It's removing the elements of the start scene. */
+            app.stage.removeChild(glove);
+            app.stage.removeChild(arrow);
+            app.stage.removeChild(textTutorial);
+
+            app.stage.addChild(poster);
+
+            /* It's setting the startScene variable to false so the game can start */
+            startScene = false;
+
+            /* It's removing the call to action after 10 seconds and add the veil to the scene */
+            setTimeout(() => {
+                if (!endScene) {
+                    /* Removing the call to action and the download button from the stage. */
+                    app.stage.removeChild(callToAction);
+                    app.stage.removeChild(downloadButton);
+                    app.stage.removeChild(logo);
+                    app.stage.removeChild(poster);
+
+                    /* Adding the redVeil and the download logo to the stage. */
+                    const redVeil = new PIXI.Graphics()
+                        .beginFill(0xB20710, 0.3)
+                        .drawRect(0, 0, app.screen.width, app.screen.height)
+                        .endFill();
+
+                    redVeil.eventMode = 'static';
+                    redVeil.on('pointerdown', () => {
+                        location.href = 'https://www.netflix.com/';
+                    })
+
+                    app.stage.addChild(redVeil);
+                    app.stage.addChild(downloadLogo);
+
+                    /* Removing all the missils from the stage. */
+                    missilsObject.forEach(function (missil) {
+                        app.stage.removeChild(missil);
+                    });
+
+                    /* Setting the endScene variable to true. */
+                    endScene = true;
+                }
             }, (10 * 1000));
 
             /* It's setting the userX variable to the x position of the mouse or the touch. */
@@ -450,8 +474,7 @@ function display() {
 
     /* It's adding the back elements of the start scene to the stage. */
     if (startScene) {
-        app.stage.addChild(leftArrow);
-        app.stage.addChild(rightArrow);
+        app.stage.addChild(arrow);
     }
 
     /* It's adding the plane to the stage. */
