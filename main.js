@@ -15,10 +15,10 @@ function checkCollision(missil, poster) {
 
 function display() {
     /*
-    * Initialization:
+    * (OPTIONNAL) Initialization:
     * Make Canvas size as same as window's size to allow the app to be 'responsive'
     */
-    app.renderer.resize(window.innerWidth, window.innerHeight);
+    // app.renderer.resize(window.innerWidth, window.innerHeight);
 
     /*
     * Parameters and Variables:
@@ -45,7 +45,7 @@ function display() {
     let gloveSpeed = 1.5;
 
     // Plane Parameters
-    const planeScale = 0.275;25
+    const planeScale = 0.275; 25
     const planeStep = 145;
     const planeSpeed = 5;
     const planeAnchor = 0.5;
@@ -103,8 +103,8 @@ function display() {
     */
     const background = new PIXI.TilingSprite(
         PIXI.Texture.from('/assets/background.png'),
-        15000, // TODO - /!\ NOT CLEAN
-        15000, // TODO - /!\ NOT CLEAN
+        app.screen.width / backgroundScale, // TODO - /!\ NOT CLEAN
+        app.screen.height / backgroundScale, // TODO - /!\ NOT CLEAN
     );
 
     background.scale.set(backgroundScale);
@@ -127,8 +127,8 @@ function display() {
     */
     const callToAction = new PIXI.TilingSprite(
         PIXI.Texture.from('/assets/cta.png'),
-        20000, // TODO - /!\ NOT CLEAN
-        20000, // TODO - /!\ NOT CLEAN
+        app.screen.width * 1.5,
+        app.screen.height,
     );
 
     callToAction.x = 0;
@@ -271,8 +271,10 @@ function display() {
     });
 
     /* Sound initialize */
-    const cashMp3 = PIXI.sound.Sound.from('/sounds/cash.mp3');
-    const themeMp3 = PIXI.sound.Sound.from('/sounds/theme.mp3');
+    const cashMp3 = PIXI.sound.Sound.from({ url: '/sounds/cash.mp3', preload: true, volume: 0.35 });
+    const themeMp3 = PIXI.sound.Sound.from({ url: '/sounds/theme.mp3', preload: true, volume: 0.75 });
+
+    /* Playing the theme song. */
     themeMp3.play();
 
     /*
@@ -351,7 +353,7 @@ function display() {
 
                     app.stage.removeChild(missil);
                     const index = missilsObject.indexOf(missil);
-                    const x = missilsObject.splice(index, 1);
+                    missilsObject.splice(index, 1);
 
                     if (posterHP == 0) {
                         /* Increments the posterIndex and if there is a poster in the postersAsset array at the posterIndex, it sets the poster texture to the next poster in the array. */
@@ -499,7 +501,7 @@ function display() {
     app.stage.addChild(callToAction);
     app.stage.addChild(downloadButton);
     app.stage.addChild(logo);
-    
+
     if (endScene) {
         app.stage.addChild(veil);
         app.stage.addChild(downloadLogo);
