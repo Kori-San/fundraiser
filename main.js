@@ -35,18 +35,18 @@ function display() {
     const ctaHeight = app.screen.height - 75;
 
     // Arrows Parameters
-    const arrowHeight = ctaHeight - 25;
+    const arrowHeight = ctaHeight - 45;
     const arrowAnchor = 0.5;
 
     // Glove Parameters
     const gloveScale = 0.2;
     const gloveAngle = -35;
-    const gloveHeightStep = 50;
+    const gloveHeightStep = 20;
     let gloveSpeed = 1.5;
 
     // Plane Parameters
-    const planeScale = 0.275;
-    const planeStep = 150;
+    const planeScale = 0.275;25
+    const planeStep = 145;
     const planeSpeed = 5;
     const planeAnchor = 0.5;
 
@@ -56,17 +56,22 @@ function display() {
     const downloadLogoAnchor = 0.5;
     let downloadLogoAngle = 0.5;
 
-    // Download Button Parameters
-    const downloadButtonScale = 0.35;
-    const downloadButtonAnchor = 0.5;
-    const downloadButtonHeight = ctaHeight + 25;
-    const downloadButtonOffset = app.screen.width - 90;
+    // Download logo Parameters
+    const logoAppScale = 0.5;
+    const logoAppAnchor = 0.5;
+    let logoAppChangeScale = 0;
 
     // Download Button Parameters
-    const logoScale = 0.175;
+    const downloadButtonScale = 0.25;
+    const downloadButtonAnchor = 0.5;
+    const downloadButtonHeight = ctaHeight + 25;
+    const downloadButtonOffset = app.screen.width - 70;
+
+    // Download Button Parameters
+    const logoScale = 0.35;
     const logoAnchor = 0.5;
-    const logoHeight = ctaHeight + 30;
-    const logoOffset = 90;
+    const logoHeight = ctaHeight + 40;
+    const logoOffset = 95;
 
     // Missil / MissilObject Parameters
     const missilsObject = [];
@@ -76,10 +81,10 @@ function display() {
 
     // Poster
     const postersAsset = [
-        '/assets/season1.svg',
-        '/assets/season2.svg',
-        '/assets/season3.svg',
-        '/assets/season4.svg',
+        '/assets/season1.png',
+        '/assets/season2.png',
+        '/assets/season3.png',
+        '/assets/season4.png',
         null
     ];
     let posterIndex = 0;
@@ -97,7 +102,7 @@ function display() {
     * In WebGL the image size should preferably be a power of two.
     */
     const background = new PIXI.TilingSprite(
-        PIXI.Texture.from('/assets/background.svg'),
+        PIXI.Texture.from('/assets/background.png'),
         15000, // TODO - /!\ NOT CLEAN
         15000, // TODO - /!\ NOT CLEAN
     );
@@ -121,7 +126,7 @@ function display() {
     * It uses the offial 'Dark Netflix Red' color: #B20710.
     */
     const callToAction = new PIXI.TilingSprite(
-        PIXI.Texture.from('/assets/cta.svg'),
+        PIXI.Texture.from('/assets/cta.png'),
         20000, // TODO - /!\ NOT CLEAN
         20000, // TODO - /!\ NOT CLEAN
     );
@@ -135,12 +140,12 @@ function display() {
     * The style is defined by an anonymous PIXI.TextStyle.
     */
     const textTutorial = new PIXI.Text('Swipe to move !', new PIXI.TextStyle({
-        fontFamily: '/font/BebasNeue.otf', // TODO: CHANGE IT
+        fontFamily: 'Arial',
         fontSize: 45,
         fontWeight: 'bold',
         fill: '#e50914',
         stroke: '#000000',
-        strokeThickness: 1,
+        strokeThickness: 5,
     }));
 
     /*
@@ -154,7 +159,7 @@ function display() {
     * Arrows creation:
     * ...
     */
-    const arrow = PIXI.Sprite.from('/assets/swipe.svg');
+    const arrow = PIXI.Sprite.from('/assets/swipe.png');
     arrow.anchor.set(arrowAnchor);
     arrow.scale.set(0.5);
     arrow.x = (app.screen.width / 2);
@@ -168,7 +173,7 @@ function display() {
     * The Glove is centered to the middle of the screen and he share 
     * the height of the arrows with a small step to the bottom of the screen.
     */
-    const glove = PIXI.Sprite.from('/assets/glove.svg');
+    const glove = PIXI.Sprite.from('/assets/glove.png');
     glove.scale.set(gloveScale);
     glove.angle = gloveAngle;
 
@@ -183,7 +188,7 @@ function display() {
     * The Plane is centered to the middle of the screen and he share 
     * the height of the CTA with a small step to the bottom of the screen.
     */
-    const plane = PIXI.Sprite.from('/assets/plane.svg');
+    const plane = PIXI.Sprite.from('/assets/plane.png');
     plane.anchor.set(planeAnchor);
     plane.scale.set(planeScale);
 
@@ -198,13 +203,20 @@ function display() {
     * The Download Logo is centered to the middle of the screen and he share 
     * the height of 1/3 the size of the screen.
     */
-    const downloadLogo = PIXI.Sprite.from('/assets/downloadLogo.svg');
+    const downloadLogo = PIXI.Sprite.from('/assets/downloadLogo.png');
     downloadLogo.anchor.set(downloadLogoAnchor);
     downloadLogo.scale.set(downloadLogoScale);
 
     downloadLogo.x = (app.screen.width / 2) - (downloadLogo.width / 2);
     downloadLogo.y = app.screen.height / 3;
 
+
+    const logoApp = PIXI.Sprite.from('/assets/logoApp.png');
+    logoApp.anchor.set(logoAppAnchor);
+    logoApp.scale.set(logoAppScale);
+
+    logoApp.x = (app.screen.width / 2) - (logoApp.width / 2);
+    logoApp.y = app.screen.height * (2 / 3);
     /*
     * Download Button creation:
     * Create a Download Button sprite and scaling it so it can fit the screen.
@@ -213,7 +225,7 @@ function display() {
     * The Download Button is centered to the middle of the screen and he share 
     * the height of the CTA.
     */
-    const downloadButton = PIXI.Sprite.from('/assets/downloadButton.svg');
+    const downloadButton = PIXI.Sprite.from('/assets/downloadButton.png');
     downloadButton.anchor.set(downloadButtonAnchor);
     downloadButton.scale.set(downloadButtonScale);
 
@@ -258,9 +270,10 @@ function display() {
         })
     });
 
-
     /* Sound initialize */
     const cashMp3 = PIXI.sound.Sound.from('/sounds/cash.mp3');
+    const themeMp3 = PIXI.sound.Sound.from('/sounds/theme.mp3');
+    themeMp3.play();
 
     /*
     * App Ticker:
@@ -284,7 +297,6 @@ function display() {
 
         /* When we're in the game scene (so we are neither in the start nor end scene) */
         if (!startScene && !endScene) {
-
             if (poster.x > app.screen.width || poster.x < 0) {
                 posterSpeed *= -1;
             }
@@ -305,7 +317,7 @@ function display() {
             /* Creating a new missil every 50 ticks. */
             if (tick % 100 == 0) {
                 /* Creating a missil and give it an id of tick divided by 50 (1, 2, 3, 4, etc...). */
-                const missil = PIXI.Sprite.from('/assets/missil.svg');
+                const missil = PIXI.Sprite.from('/assets/missil.png');
                 missil.id = tick / 50;
 
                 /* It's setting the scale and the anchor of the missil. */
@@ -372,6 +384,7 @@ function display() {
                 /* Adding the veil and the download logo to the stage. */
                 app.stage.addChild(veil);
                 app.stage.addChild(downloadLogo);
+                app.stage.addChild(logoApp);
 
                 /* Removing all the missils from the stage. */
                 missilsObject.forEach(function (missil) {
@@ -428,19 +441,10 @@ function display() {
                     app.stage.removeChild(logo);
                     app.stage.removeChild(poster);
 
-                    /* Adding the redVeil and the download logo to the stage. */
-                    const redVeil = new PIXI.Graphics()
-                        .beginFill(0xB20710, 0.3)
-                        .drawRect(0, 0, app.screen.width, app.screen.height)
-                        .endFill();
-
-                    redVeil.eventMode = 'static';
-                    redVeil.on('pointerdown', () => {
-                        location.href = 'https://www.netflix.com/';
-                    })
-
-                    app.stage.addChild(redVeil);
+                    /* Adding the veil and the download logo to the stage. */
+                    app.stage.addChild(veil);
                     app.stage.addChild(downloadLogo);
+                    app.stage.addChild(logoApp);
 
                     /* Removing all the missils from the stage. */
                     missilsObject.forEach(function (missil) {
@@ -495,10 +499,11 @@ function display() {
     app.stage.addChild(callToAction);
     app.stage.addChild(downloadButton);
     app.stage.addChild(logo);
-
+    
     if (endScene) {
         app.stage.addChild(veil);
         app.stage.addChild(downloadLogo);
+        app.stage.addChild(logoApp);
     }
 }
 
@@ -514,10 +519,10 @@ const app = new PIXI.Application({
     transparent: true,
 });
 
-/* Optionnal: Make the app truly responsive */
-window.addEventListener("resize", () => {
-    display()
-})
+// /* Optionnal: Make the app truly responsive */
+// window.addEventListener("resize", () => {
+//     display()
+// })
 
 /* Setting the position of the canvas to absolute. */
 app.renderer.view.style.position = 'absolute';
